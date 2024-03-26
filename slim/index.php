@@ -20,6 +20,18 @@ $app->add( function ($request, $handler) {
     ;
 });
 
+function getConnection(){
+  $db = "localhost";
+  $dbname = "seminariophp";
+  $dbuser = "root";
+  $dbpass = "";
+
+  $connection = new PDO("mysql:host=$db;dbname= $dbname", $dbuser, $dbpass);
+  $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+  return $connection;
+}
+
 // ACÁ VAN LOS ENDPOINTS
 $app->get('/testing', function(Request $request, Response $response){
   $response->getBody()->write('testing');
@@ -33,6 +45,31 @@ $app->post('/users/create', function(Request $request, Response $response){
 
 $app->get('/books/{id}', function ($request, $response, array $args) {
   die($args['id']);
+});
+
+$app->get('/tipos_propiedad/listar', function ($request, $response, array $args) {
+  $connection = getConnection();
+  try {
+    $query = $connection->query('SELECT * FROM tipo_propiedades');
+    $tipos = $query->fetchAll(PDO::FETCH_ASSOC);
+    
+    $payload = json_encode([
+      'status' => 'success',
+      'code' => 200,
+      'data' => $tipos
+    ]);
+
+    $response->getBody()->write($payload);
+    return $response->withHeader('Content-Type','application/json');
+  }
+    catch (PDOException $e){
+      $payload = json_encode([
+        'status' => 'success',
+        'code' => 400
+      ]);
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type','application/json');
+      }
 });
 
 $app->run();
