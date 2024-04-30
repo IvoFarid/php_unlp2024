@@ -93,11 +93,6 @@ $app->get('/localidades', function (Request $request, Response $response) {
   } catch (PDOException $e){
     $httpStatus = 500;
     $payload = generarPayload('error', $httpStatus, $e->getMessage(), true);
-    // $payload = json_encode([
-    //   'status' => 'error',
-    //   'code' => $httpStatus,
-    //   'error' => $e->getMessage()
-    // ]);
   }
   $response->getBody()->write($payload);
   return $response->withHeader('Content-Type','application/json')->withStatus($httpStatus);
